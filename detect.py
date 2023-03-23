@@ -67,11 +67,12 @@ def plot_image_withColor(img_tensor, annotation):
     fig.canvas.draw()
     image_from_plot = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
     picture = image_from_plot.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+    plt.close()
     return picture
 
 device = torch.device('cpu')
 model = get_model_instance_segmentation(3)
-model.load_state_dict(torch.load(r"C:\Users\Pc\Downloads\classifier.pt", map_location=torch.device('cpu')))
+model.load_state_dict(torch.load(r"D:\model\classifier.pt", map_location=torch.device('cpu')))
 
 
 if a is not None:
@@ -111,10 +112,11 @@ def video_frame_callback(frame):
 
     idx = 0
     print("Prediction")
-    plot_image_withColor([a][idx], [new_demo][idx]) # preds
-    flipped = img[::,:,::-1]
+    picture = plot_image_withColor([a][idx], [new_demo][idx]) # preds
+    flipped = picture[::,:,::-1]
 
-    return av.VideoFrame.from_ndarray(flipped, format="rgb24")
+    return av.VideoFrame.from_ndarray(flipped, format="bgr24")
 
 
-webrtc_streamer(key="example", video_frame_callback=video_frame_callback)
+webrtc_streamer(key="example", video_frame_callback=video_frame_callback,media_stream_constraints={"video": True, "audio": False},
+    async_processing=True,)
