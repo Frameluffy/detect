@@ -97,22 +97,22 @@ if a is not None:
     st.image(picture)
 
 def video_frame_callback(frame):
-    img = frame.to_image()
+    img = frame.to_ndarray(format="bgr24")
     convert_tensor = transforms.ToTensor()
     a = convert_tensor(img)
-    model.eval()
-    with torch.no_grad():
-        preds = model([a])
+    # model.eval()
+    # with torch.no_grad():
+    #     preds = model([a])
 
-    demo = preds.copy()
-    new_demo = dict()
-    for i in demo[0].keys():
-        new_demo[i] = preds[0][i][preds[0]['scores']>0.5]
+    # demo = preds.copy()
+    # new_demo = dict()
+    # for i in demo[0].keys():
+    #     new_demo[i] = preds[0][i][preds[0]['scores']>0.8]
 
-    idx = 0
-    print("Prediction")
-    picture = plot_image_withColor([a][idx], [new_demo][idx]) # preds
-    flipped = picture[::,:,::-1]
+    # idx = 0
+    # print("Prediction")
+    #picture = plot_image_withColor([a][idx], [new_demo][idx]) # preds
+    flipped = img[::,::-1]
 
     return av.VideoFrame.from_ndarray(flipped, format="bgr24")
 
