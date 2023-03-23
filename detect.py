@@ -79,7 +79,6 @@ if a is not None:
     img = Image.open(a).convert("RGB")
     st.image(img)
     st.title('hello world')
-    # st.write('fam patta')
     convert_tensor = transforms.ToTensor()
     a = convert_tensor(img)
     model.eval()
