@@ -55,9 +55,11 @@ def plot_image_withColor(img_tensor, annotation):
         # Create a Rectangle patch with different colors
         #red: with mask  green: mask_weared_incorrect  blue: without mask
             rect = patches.Rectangle((xmin,ymin),(xmax-xmin),(ymax-ymin),linewidth=1,edgecolor='r',facecolor='none')
+            print('yessss')
         elif(label == 2):
             rect = patches.Rectangle((xmin,ymin),(xmax-xmin),(ymax-ymin),linewidth=1,edgecolor='g',facecolor='none')
         else:
+            print('nowwww')
             rect = patches.Rectangle((xmin,ymin),(xmax-xmin),(ymax-ymin),linewidth=1,edgecolor='b',facecolor='none')
 
         ax.add_patch(rect)
@@ -97,24 +99,24 @@ if a is not None:
     st.image(picture)
 
 def video_frame_callback(frame):
-    img = frame.to_ndarray(format="bgr24")
+    img = frame.to_ndarray(format="rgb24")
     convert_tensor = transforms.ToTensor()
     a = convert_tensor(img)
-    # model.eval()
-    # with torch.no_grad():
-    #     preds = model([a])
+    model.eval()
+    with torch.no_grad():
+        preds = model([a])
 
-    # demo = preds.copy()
-    # new_demo = dict()
-    # for i in demo[0].keys():
-    #     new_demo[i] = preds[0][i][preds[0]['scores']>0.8]
+    demo = preds.copy()
+    new_demo = dict()
+    for i in demo[0].keys():
+        new_demo[i] = preds[0][i][preds[0]['scores']>0.8]
 
-    # idx = 0
-    # print("Prediction")
-    #picture = plot_image_withColor([a][idx], [new_demo][idx]) # preds
-    flipped = img[::,::-1]
+    idx = 0
+    print("Prediction")
+    picture = plot_image_withColor([a][idx], [new_demo][idx]) # preds
+    flipped = picture[::,::-1]
 
-    return av.VideoFrame.from_ndarray(flipped, format="bgr24")
+    return av.VideoFrame.from_ndarray(flipped, format="rgb24")
 
 
 webrtc_streamer(key="example", video_frame_callback=video_frame_callback,media_stream_constraints={"video": True, "audio": False},
