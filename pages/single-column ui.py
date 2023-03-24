@@ -20,14 +20,6 @@ import av
 
 st.set_page_config(layout="wide")
 
-with st.sidebar:
-    with st.echo():
-        st.write("This code will be printed to the sidebar.")
-
-
-    
-
-
 
 def get_model_instance_segmentation(num_classes):
     # load an instance segmentation model pre-trained pre-trained on COCO
