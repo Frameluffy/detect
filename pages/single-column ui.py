@@ -1,3 +1,4 @@
+import time
 import numpy as np # linear algebra
 import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
 import torchvision
@@ -10,15 +11,22 @@ from torchvision.models.detection.mask_rcnn import MaskRCNNPredictor
 import matplotlib.patches as patches
 import os
 import streamlit as st
+from io import BytesIO
 import tensorflow as tf
 # from google.colab import drive
 # drive.mount('/content/gdrive')
 from streamlit_webrtc import webrtc_streamer
 import av
 
+st.set_page_config(layout="wide")
+
+with st.sidebar:
+    with st.echo():
+        st.write("This code will be printed to the sidebar.")
 
 
-a = st.file_uploader('upload image', type=['png', 'jpg', 'jpeg'])
+    
+
 
 
 def get_model_instance_segmentation(num_classes):
@@ -55,15 +63,13 @@ def plot_image_withColor(img_tensor, annotation):
         # Create a Rectangle patch with different colors
         #red: with mask  green: mask_weared_incorrect  blue: without mask
             rect = patches.Rectangle((xmin,ymin),(xmax-xmin),(ymax-ymin),linewidth=1,edgecolor='r',facecolor='none')
-            print('yessss')
         elif(label == 2):
             rect = patches.Rectangle((xmin,ymin),(xmax-xmin),(ymax-ymin),linewidth=1,edgecolor='g',facecolor='none')
         else:
-            print('nowwww')
             rect = patches.Rectangle((xmin,ymin),(xmax-xmin),(ymax-ymin),linewidth=1,edgecolor='b',facecolor='none')
 
         ax.add_patch(rect)
-
+    plt.tight_layout(pad=0)
     plt.axis("off")
     fig.tight_layout(pad=0)
     fig.canvas.draw()
@@ -76,27 +82,45 @@ device = torch.device('cpu')
 model = get_model_instance_segmentation(3)
 model.load_state_dict(torch.load(r"D:\model\classifier.pt", map_location=torch.device('cpu')))
 
+st.header("Image")
+a = st.file_uploader('Upload image', type=['png', 'jpg', 'jpeg'])
+with st.expander("Mask-detect with Image"):
+    
 
-if a is not None:
-    img = Image.open(a).convert("RGB")
-    st.image(img)
-    st.title('hello world')
-    convert_tensor = transforms.ToTensor()
-    a = convert_tensor(img)
-    model.eval()
-    with torch.no_grad():
-        preds = model([a])
+    if a is not None:
+        img = Image.open(a).convert("RGB")
+        st.empty()
+        st.image(img)
+        convert_tensor = transforms.ToTensor()
+        a = convert_tensor(img)
+        model.eval()
+        with torch.no_grad():
+            preds = model([a])
 
+        demo = preds.copy()
+        new_demo = dict()
+        for i in demo[0].keys():
+            new_demo[i] = preds[0][i][preds[0]['scores']>0.8]
 
-    demo = preds.copy()
-    new_demo = dict()
-    for i in demo[0].keys():
-        new_demo[i] = preds[0][i][preds[0]['scores']>0.5]
-
-    idx = 0
-    print("Prediction")
-    picture = plot_image_withColor([a][idx], [new_demo][idx]) # preds
-    st.image(picture)
+        idx = 0
+        print("Prediction")
+        st.title('Mask detection')
+        picture = plot_image_withColor([a][idx], [new_demo][idx]) # preds
+        with st.spinner("Loading..."):
+            time.sleep(5)
+        st.balloons()
+        st.image(picture)
+        frame = av.VideoFrame.from_ndarray(picture, format="rgb24")
+        omg = frame.to_image()
+        buf = BytesIO()
+        omg.save(buf, format="JPEG")
+        byte_im = buf.getvalue()
+        btn = st.download_button(
+            label="Download Image",
+            data=byte_im,
+            file_name="mask-detect.png",
+            mime="image/jpeg",
+        )
 
 def video_frame_callback(frame):
     img = frame.to_ndarray(format="rgb24")
@@ -119,5 +143,10 @@ def video_frame_callback(frame):
     return av.VideoFrame.from_ndarray(flipped, format="rgb24")
 
 
-webrtc_streamer(key="example", video_frame_callback=video_frame_callback,media_stream_constraints={"video": True, "audio": False},
-    async_processing=True,)
+
+
+with st.expander("Mask-detect with Realtime-Camera"):
+    st.header("Realtime-camera")
+    webrtc_streamer(key="example", video_frame_callback=video_frame_callback,media_stream_constraints={"video": True, "audio": False},async_processing=True,)
+
+
