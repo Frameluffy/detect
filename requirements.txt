@@ -1,0 +1,6 @@
+torch
+PIL
+matplotlib
+torchvision
+tensorflow
+io
