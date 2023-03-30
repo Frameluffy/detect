@@ -4,3 +4,4 @@ torchvision
 tensorflow
 streamlit
 streamlit-webrtc
+protobuf~=3.20.0

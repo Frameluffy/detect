@@ -39,17 +39,17 @@ def get_model_instance_segmentation(num_classes):
 def plot_image_withColor(img_tensor, annotation):
     
     fig,ax = plt.subplots(1)
-    img = img_tensor.cpu().numpy()
+    img = img_tensor.cuda().numpy()
 
     # Display the image
     ax.imshow(np.transpose(img,(1,2,0)))
     
     for (box, label) in zip(annotation["boxes"],annotation["labels"]):
-        img = img_tensor.cpu().data.numpy()
+        img = img_tensor.cuda().data.numpy()
 
         # Display the image
         # ax.imshow(np.transpose(img,(1,2,0)))
-        xmin, ymin, xmax, ymax = box.cpu()
+        xmin, ymin, xmax, ymax = box.cuda()
         
         if(label == 1):
         # Create a Rectangle patch with different colors
@@ -70,9 +70,8 @@ def plot_image_withColor(img_tensor, annotation):
     plt.close()
     return picture
 
-device = torch.device('cpu')
 model = get_model_instance_segmentation(3)
-model.load_state_dict(torch.load(r"D:\model\classifier.pt", map_location=torch.device('cpu')))
+model.load_state_dict(torch.load(r"D:\model\classifier.pt", map_location=torch.device(0)))
 
 st.header("Image")
 a = st.file_uploader('Upload image', type=['png', 'jpg', 'jpeg'])
@@ -80,11 +79,13 @@ with st.expander("Mask-detect with Image"):
     
 
     if a is not None:
+        
         img = Image.open(a).convert("RGB")
         st.empty()
         st.image(img)
         convert_tensor = transforms.ToTensor()
-        a = convert_tensor(img)
+        a = convert_tensor(img).cuda()
+        model.cuda()
         model.eval()
         with torch.no_grad():
             preds = model([a])
