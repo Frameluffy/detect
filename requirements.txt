@@ -1,7 +1,6 @@
 torch
 matplotlib
 torchvision
-tensorflow
 streamlit
-streamlit-webrtc
+opencv-python
 protobuf~=3.20.0
