@@ -83,14 +83,19 @@ if app_mode =='Run on Image':
     a = st.file_uploader('Upload image', type=['png', 'jpg', 'jpeg'])
     
     if a is not None:
-        print(torch.cuda.is_available())
-        print(torch.cuda.get_device_name(0))
+        # print(torch.cuda.is_available())
+        # print(torch.cuda.get_device_name(0))
         img = Image.open(a).convert("RGB")
         img = np.asarray(img)
         img_section = st.empty()
+        st.session_state['img_original'] = img
+        if 'img' in st.session_state:
+            img = st.session_state['img']
         img_section.image(img)
 
-        col1 ,col2 ,col3 = st.columns(3,gap="small")
+        col0, col1 ,col2 ,col3 = st.columns(4,gap="small")
+        with col0:
+            original = st.button("original")
         with col1:
             f_horiz = st.button("Flip Horizontal")
         with col2:
@@ -100,15 +105,28 @@ if app_mode =='Run on Image':
             
         predict = st.button("Predict")
 
+        if original:
+            if 'img' in st.session_state:
+                st.session_state['img'] = st.session_state['img_original']
+                img = st.session_state['img']
+                img_section.image(img)
+                
+
         if f_horiz:
+            if 'img' in st.session_state:
+               img = st.session_state['img']
             img = cv2.flip(img,1)
             st.session_state['img'] = img
             img_section.image(img)
-        elif f_verti:
+        if f_verti:
+            if 'img' in st.session_state:
+               img = st.session_state['img']
             img = cv2.flip(img,0)
             st.session_state['img'] = img
             img_section.image(img)
-        elif blur:
+        if blur:
+            if 'img' in st.session_state:
+               img = st.session_state['img']
             img = cv2.blur(img,(30,30))
             st.session_state['img'] = img
             img_section.image(img)
@@ -116,7 +134,6 @@ if app_mode =='Run on Image':
         if predict:
             convert_tensor = transforms.ToTensor()
             if 'img' not in st.session_state:
-                print('hello')
                 st.session_state['img'] = img
 
             img = st.session_state['img']
@@ -146,8 +163,10 @@ if app_mode =='Run on Image':
             buf = BytesIO()
             omg.save(buf, format="JPEG")
             byte_im = buf.getvalue()
-
             del st.session_state['img']
+            
+
+            
         
 elif app_mode == "Run on Video":
     
