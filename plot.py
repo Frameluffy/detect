@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import streamlit as st
 import matplotlib.patches as patches
 from playsound import playsound
 
@@ -28,12 +29,14 @@ def plot_image_withColor(img_tensor, annotation):
         else:
             rect = patches.Rectangle((xmin,ymin),(xmax-xmin),(ymax-ymin),linewidth=1,edgecolor='b',facecolor='none')
         ax.add_patch(rect)
-        
-    plt.tight_layout(pad=0)
-    plt.axis("off")
+    
+    plt.axis("off")   
+    
     fig.tight_layout(pad=0)
     fig.canvas.draw()
+
     image_from_plot = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
     picture = image_from_plot.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+    print(picture.shape)
     plt.close()
     return picture

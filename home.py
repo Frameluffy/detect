@@ -8,6 +8,7 @@ import cv2
 import av
 from threading import Thread
 import numpy as np
+import tensorflow as tf
 
 #from files 
 from model import get_model_instance_segmentation
@@ -60,7 +61,7 @@ class WebcamStream :
         self.stopped = True
 
 app_mode = st.sidebar.selectbox('Choose the App mode',
-['Run on Image','Run on Video']
+['Run on Image','Run on Video','Run on Webcam']
 )
 st.sidebar.markdown('---')
 st.sidebar.title('Mask-Dection')
@@ -168,10 +169,9 @@ if app_mode =='Run on Image':
 
             
         
-elif app_mode == "Run on Video":
+elif app_mode == "Run on Webcam":
     
     if 'object' in st.session_state:
-        print('asfasfafasfafasf')
         webcam_stream = st.session_state['object']
     st.header("Realtime-camera")
     #webrtc_streamer(key="example", video_frame_callback=video_frame_callback,media_stream_constraints={"video": True, "audio": False},async_processing=True,)
@@ -206,6 +206,7 @@ elif app_mode == "Run on Video":
 
         while webcam_stream.grabbed:    
             frame = webcam_stream.read()
+            print(type(frame))
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             frame.flags.writeable = True
             convert_tensor = transforms.ToTensor()
@@ -228,8 +229,59 @@ elif app_mode == "Run on Video":
         del st.session_state['status']
 
 
-
+elif app_mode == "Run on Video":
+    video_file_buffer = st.file_uploader("Upload a video", type=[ "mp4", "mov",'avi','asf', 'm4v' ])
+    if video_file_buffer is not None:
+        stf0 = st.empty()
+        stframe = st.empty()
+        tfflie = tempfile.NamedTemporaryFile(delete=False)
+        if not video_file_buffer:
+            st.write('No video')
         
+        else:
+            tfflie.write(video_file_buffer.read())
+            vid = cv2.VideoCapture(tfflie.name)
+            width = int(vid.get(cv2.CAP_PROP_FRAME_WIDTH))
+            height = int(vid.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
+            fps_input = int(vid.get(cv2.CAP_PROP_FPS))
+            total = int(vid.get(cv2.CAP_PROP_FRAME_COUNT))
+            duration = total/fps_input
+            print('duration : '+str(duration))
 
+            codec = cv2.VideoWriter_fourcc(*'VP90')
+            out = cv2.VideoWriter('output.webm', codec, fps_input, (640, 480))
+            j = 0
+            while vid.isOpened():
+                j+=1
+                ret, frame = vid.read()
+                if not ret:
+                    print('out')
+                    break
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                convert_tensor = transforms.ToTensor()
+                a = convert_tensor(frame).cuda()
+                model.cuda()
+                model.eval()
+                with torch.no_grad():
+                    preds = model([a])
+
+                demo = preds.copy()
+                new_demo = dict()
+                for i in demo[0].keys():
+                    new_demo[i] = preds[0][i][preds[0]['scores']>detection_confidence]
+
+                idx = 0
+                frame = plot_image_withColor([a][idx], [new_demo][idx]) # preds
+                stf0.image(frame)
+                print('frame '+str(j))
+                # frame.flags.writeable = True
+                frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+                out.write(frame)
+            output_video = open('output.webm','rb')
+            out_bytes = output_video.read()
+            stframe.video(out_bytes)
+            vid.release()
+            out. release()
+            print('release')
 
