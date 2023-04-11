@@ -66,7 +66,7 @@ app_mode = st.sidebar.selectbox('Choose the App mode',
 st.sidebar.markdown('---')
 st.sidebar.title('Mask-Dection')
 st.sidebar.subheader('Parameters')
-detection_confidence = st.sidebar.slider('Min Detection Confidence', min_value =0.0,max_value = 1.0,value = 0.8)
+detection_confidence = st.sidebar.slider('Detection Confidence', min_value =0.0,max_value = 1.0,value = 0.8)
 
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -89,6 +89,7 @@ if app_mode =='Run on Image':
         img = Image.open(a).convert("RGB")
         img = np.asarray(img)
         img_section = st.empty()
+        
         st.session_state['img_original'] = img
         if 'img' in st.session_state:
             img = st.session_state['img']
@@ -102,8 +103,9 @@ if app_mode =='Run on Image':
         with col2:
             f_verti = st.button("Flip Vertical")
         with col3:
+            ksize = st.slider('Blur kernel size', min_value =0,max_value = 100,value = 10)
             blur = st.button("Blur")
-            
+        st.markdown('---')
         predict = st.button("Predict")
 
         if original:
@@ -128,7 +130,7 @@ if app_mode =='Run on Image':
         if blur:
             if 'img' in st.session_state:
                img = st.session_state['img']
-            img = cv2.blur(img,(30,30))
+            img = cv2.blur(img,(ksize,ksize))
             st.session_state['img'] = img
             img_section.image(img)
 
@@ -249,7 +251,7 @@ elif app_mode == "Run on Video":
             duration = total/fps_input
             print('duration : '+str(duration))
 
-            codec = cv2.VideoWriter_fourcc(*'VP90')
+            codec = cv2.VideoWriter_fourcc(*'VP09')
             out = cv2.VideoWriter('output.webm', codec, fps_input, (640, 480))
             j = 0
             while vid.isOpened():
