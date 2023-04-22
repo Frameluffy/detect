@@ -21,14 +21,20 @@ def plot_image_withColor(img_tensor, annotation):
         if(label == 1):
         # Create a Rectangle patch with different colors
         #red: with mask  green: mask_weared_incorrect  blue: without mask
-            rect = patches.Rectangle((xmin,ymin),(xmax-xmin),(ymax-ymin),linewidth=1,edgecolor='r',facecolor='none')
-            
-        elif(label == 2):
             rect = patches.Rectangle((xmin,ymin),(xmax-xmin),(ymax-ymin),linewidth=1,edgecolor='g',facecolor='none')
-            playsound(r'D:\detect\sound\sound.wav')
+            text = "With mask"
+            color = "#8fce00"
+        elif(label == 2):
+            rect = patches.Rectangle((xmin,ymin),(xmax-xmin),(ymax-ymin),linewidth=1,edgecolor='r',facecolor='none')
+            text = "Mask weared incorrect"
+            color = "#f44336"
         else:
             rect = patches.Rectangle((xmin,ymin),(xmax-xmin),(ymax-ymin),linewidth=1,edgecolor='b',facecolor='none')
+            text = "Without mask"
+            color = "#2986cc"
+            playsound(r'D:\detect\sound\sound.wav')
         ax.add_patch(rect)
+        ax.text(xmin+10, ymin+20, text,fontfamily="sans-serif",color=color)
     
     plt.axis("off")   
     
@@ -37,6 +43,5 @@ def plot_image_withColor(img_tensor, annotation):
 
     image_from_plot = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
     picture = image_from_plot.reshape(fig.canvas.get_width_height()[::-1] + (3,))
-    print(picture.shape)
     plt.close()
     return picture

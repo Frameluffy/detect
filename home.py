@@ -76,7 +76,7 @@ model = get_model_instance_segmentation(3)
 # output = "classifier.pt"
 # gdown.download(url, output, quiet=False)
 # model.load_state_dict(torch.load(r"/classifier.pt", map_location=device))
-model.load_state_dict(torch.load(r"D:\model\classifier.pt", map_location=device))
+model.load_state_dict(torch.load(r"D:\model\detectmask1.pt", map_location=device))
 
 if app_mode =='Run on Image':
     
@@ -185,7 +185,6 @@ elif app_mode == "Run on Webcam":
     tffile = tempfile.NamedTemporaryFile(delete=False)
     # if st.session_state.keys == 0:
     if 'status' in st.session_state:
-        print('helloooo')
         print(st.session_state['status'])
         if st.session_state['status'] == 'stop':
                 print('Program Stopped')
@@ -208,7 +207,7 @@ elif app_mode == "Run on Webcam":
 
         while webcam_stream.grabbed:    
             frame = webcam_stream.read()
-            print(type(frame))
+        
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             frame.flags.writeable = True
             convert_tensor = transforms.ToTensor()
