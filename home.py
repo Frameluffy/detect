@@ -207,8 +207,8 @@ elif app_mode == "Run on Webcam":
 
         while webcam_stream.grabbed:    
             frame = webcam_stream.read()
-        
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            frame_flip = cv2.flip(frame,1)
+            frame = cv2.cvtColor(frame_flip, cv2.COLOR_BGR2RGB)
             frame.flags.writeable = True
             convert_tensor = transforms.ToTensor()
             a = convert_tensor(frame).cuda()
