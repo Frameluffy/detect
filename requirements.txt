@@ -4,3 +4,4 @@ torchvision
 streamlit
 opencv-python
 protobuf~=3.20.0
+playsound~=1.2.2
