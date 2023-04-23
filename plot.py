@@ -8,7 +8,7 @@ import threading
 def alert():
     threading.Thread(target=playsound, args=(r'D:\detect\sound\sound.wav',), daemon=True).start()
 
-def plot_image_withColor(img_tensor, annotation):
+def plot_image_withColor(img_tensor, annotation,type):
     fig,ax = plt.subplots(1)
     img = img_tensor.cpu().numpy()
     # Display the image
@@ -31,10 +31,10 @@ def plot_image_withColor(img_tensor, annotation):
             rect = patches.Rectangle((xmin,ymin),(xmax-xmin),(ymax-ymin),linewidth=1,edgecolor='r',facecolor='none')
             text = f"Without mask \nScore : {str(score)}"
             color = "red"
-            print(st.session_state['playsound'])
-            if st.session_state['playsound']%30 == 0:
-                alert()
-            st.session_state['playsound'] += 1
+            if type == "webcam":
+                if st.session_state['playsound']%30 == 0:
+                    alert()
+                st.session_state['playsound'] += 1
         elif(label == 3):
             rect = patches.Rectangle((xmin,ymin),(xmax-xmin),(ymax-ymin),linewidth=1,edgecolor='b',facecolor='none')
             text = f"Mask weared incorrect \nScore : {str(score)}"

@@ -158,7 +158,7 @@ if app_mode =='Run on Image':
             idx = 0
             print("Prediction")
             st.title('Mask detection')
-            picture = plot_image_withColor([a][idx], [new_demo][idx]) # preds
+            picture = plot_image_withColor([a][idx], [new_demo][idx],"image") # preds
             # with st.spinner("Loading..."):
             #     time.sleep(5)
             st.balloons()
@@ -226,7 +226,7 @@ elif app_mode == "Run on Webcam":
                 new_demo[i] = preds[0][i][preds[0]['scores']>detection_confidence]
 
             idx = 0
-            frame = plot_image_withColor([a][idx], [new_demo][idx]) # preds
+            frame = plot_image_withColor([a][idx], [new_demo][idx],"webcam") # preds
             stframe.image(frame,channels = 'RGB',use_column_width=True)
             
         del st.session_state['playsound']
@@ -281,7 +281,7 @@ elif app_mode == "Run on Video":
                     new_demo[i] = preds[0][i][preds[0]['scores']>detection_confidence]
 
                 idx = 0
-                frame = plot_image_withColor([a][idx], [new_demo][idx]) # preds
+                frame = plot_image_withColor([a][idx], [new_demo][idx],"video") # preds
                 stf0.image(frame)
                 print('frame '+str(j))
                 # frame.flags.writeable = True
