@@ -229,7 +229,7 @@ elif app_mode == "Run on Webcam":
             frame = plot_image_withColor([a][idx], [new_demo][idx]) # preds
             stframe.image(frame,channels = 'RGB',use_column_width=True)
             
-
+        del st.session_state['playsound']
         del st.session_state['object']
         del st.session_state['status']
 
