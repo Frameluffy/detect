@@ -70,16 +70,20 @@ detection_confidence = st.sidebar.slider('Detection Confidence', min_value =0.0,
 
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-model = get_model_instance_segmentation(3)
+model = get_model_instance_segmentation(4)
 
 # url = "https://drive.google.com/file/d/1MmNGQrw1sIlBf5KL3VBQnWhInPePSeF4/view?usp=share_link"
 # output = "classifier.pt"
 # gdown.download(url, output, quiet=False)
 # model.load_state_dict(torch.load(r"/classifier.pt", map_location=device))
-model.load_state_dict(torch.load(r"D:\model\detectmask1.pt", map_location=device))
+model.load_state_dict(torch.load(r"D:\model\detectmask3.pt", map_location=device))
 
 if app_mode =='Run on Image':
-    
+    if 'object' in st.session_state:
+        webcam_stream = st.session_state['object']
+        webcam_stream.stop()
+        del webcam_stream
+
     st.header("Image")
     a = st.file_uploader('Upload image', type=['png', 'jpg', 'jpeg'])
     
@@ -172,7 +176,6 @@ if app_mode =='Run on Image':
             
         
 elif app_mode == "Run on Webcam":
-    
     if 'object' in st.session_state:
         webcam_stream = st.session_state['object']
     st.header("Realtime-camera")
@@ -204,8 +207,8 @@ elif app_mode == "Run on Webcam":
             if option:
                 st.session_state['status'] = 'stop'
             
-
-        while webcam_stream.grabbed:    
+        st.session_state['playsound'] = 0
+        while webcam_stream.grabbed:
             frame = webcam_stream.read()
             frame_flip = cv2.flip(frame,1)
             frame = cv2.cvtColor(frame_flip, cv2.COLOR_BGR2RGB)
@@ -225,12 +228,17 @@ elif app_mode == "Run on Webcam":
             idx = 0
             frame = plot_image_withColor([a][idx], [new_demo][idx]) # preds
             stframe.image(frame,channels = 'RGB',use_column_width=True)
+            
 
         del st.session_state['object']
         del st.session_state['status']
 
 
 elif app_mode == "Run on Video":
+    if 'object' in st.session_state:
+        webcam_stream = st.session_state['object']
+        webcam_stream.stop()
+        del webcam_stream
     video_file_buffer = st.file_uploader("Upload a video", type=[ "mp4", "mov",'avi','asf', 'm4v' ])
     if video_file_buffer is not None:
         stf0 = st.empty()
