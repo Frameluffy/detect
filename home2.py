@@ -2,13 +2,9 @@ from torchvision import transforms
 import torch
 from PIL import Image
 import streamlit as st
-from io import BytesIO
-import tempfile
 import cv2
-import av
 from threading import Thread
 import numpy as np
-import tensorflow as tf
 
 #from files 
 from model import get_model_instance_segmentation
@@ -61,8 +57,8 @@ class WebcamStream :
         self.stopped = True
 
 app_mode = st.sidebar.selectbox('Choose the App mode',
-['Run on Image','Run on Webcam']
-)
+['Run on Image','Run on Webcam'])
+
 st.sidebar.markdown('---')
 st.sidebar.title('Mask-Dection')
 st.sidebar.subheader('Parameters')
@@ -164,15 +160,7 @@ if app_mode =='Run on Image':
             st.balloons()
             st.image(picture)
             
-            img = av.VideoFrame.from_ndarray(picture, format="rgb24")
-
-            omg = img.to_image()
-            buf = BytesIO()
-            omg.save(buf, format="JPEG")
-            byte_im = buf.getvalue()
             del st.session_state['img']
-            
-
             
         
 elif app_mode == "Run on Webcam":
@@ -185,15 +173,13 @@ elif app_mode == "Run on Webcam":
     scol1, scol2 = st.columns(2,gap='small')
     st.session_state['control']=0
     
-    tffile = tempfile.NamedTemporaryFile(delete=False)
-    # if st.session_state.keys == 0:
+
     if 'status' in st.session_state:
         print(st.session_state['status'])
         if st.session_state['status'] == 'stop':
                 print('Program Stopped')
                 webcam_stream.stop()
                 del webcam_stream
-                
  
     if wc:
         webcam_stream = WebcamStream(stream_id=0) # 0 id for main camera

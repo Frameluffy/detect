@@ -2,13 +2,13 @@ from torchvision import transforms
 import torch
 from PIL import Image
 import streamlit as st
-from io import BytesIO
+
 import tempfile
 import cv2
 import av
 from threading import Thread
 import numpy as np
-import tensorflow as tf
+
 
 #from files 
 from model import get_model_instance_segmentation
@@ -166,10 +166,6 @@ if app_mode =='Run on Image':
             
             img = av.VideoFrame.from_ndarray(picture, format="rgb24")
 
-            omg = img.to_image()
-            buf = BytesIO()
-            omg.save(buf, format="JPEG")
-            byte_im = buf.getvalue()
             del st.session_state['img']
             
 
